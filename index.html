@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="conectaTE — Nodo de Pensamiento Computacional de la I.E. Sor María Juliana. División Betelgeuse, Olimpiadas STEM+, y el futuro desde Cartago." />
+  <meta name="theme-color" content="#000000" />
+  <title>conectaTE · Nodo de Pensamiento Computacional · I.E. Sor María Juliana</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <!-- THREE.JS CDN STACK — ORDER IS CRITICAL -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/meshoptimizer@0.18.1/meshopt_decoder.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Neural Particle Canvas — Fixed BG -->
+  <canvas id="neural-canvas" aria-hidden="true"></canvas>
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a href="#hero" class="header-logo header-logo--left" aria-label="I.E. Sor María Juliana">
+        <img src="assets/logo_institucion.jpg" alt="Institución Educativa Sor María Juliana" />
+      </a>
+
+      <nav class="header-nav" aria-label="Navegación principal">
+        <a href="#hero"      class="nav-link" data-section="hero">Inicio</a>
+        <a href="#narrative" class="nav-link" data-section="narrative">Misiones</a>
+        <a href="#about"     class="nav-link" data-section="about">Nosotros</a>
+        <a href="#join"      class="nav-link" data-section="join">Unirse</a>
+      </nav>
+
+      <a href="#hero" class="header-logo header-logo--right" aria-label="Semillero conectaTE">
+        <img src="assets/logo_semillero.jpg" alt="Semillero conectaTE" />
+      </a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION 1: HERO — Full-screen 3D + Glass Text
+    ═══════════════════════════════════════════════════════ -->
+    <section id="hero" class="hero-section">
+
+      <!-- Full-screen 3D canvas -->
+      <div class="hero-3d-stage" id="hero-viewer">
+        <canvas id="three-canvas" aria-label="Modelo 3D del semillero conectaTE"></canvas>
+
+        <!-- Gradient vignettes for depth -->
+        <div class="stage-vignette stage-vignette--bottom"></div>
+        <div class="stage-vignette stage-vignette--left"></div>
+        <div class="stage-vignette stage-vignette--right"></div>
+
+        <!-- Loading screen -->
+        <div class="loader-screen" id="three-loader">
+          <div class="loader-lines" aria-hidden="true">
+            <div class="ll ll--1"></div>
+            <div class="ll ll--2"></div>
+            <div class="ll ll--3"></div>
+          </div>
+          <div class="loader-content">
+            <span class="loader-tag">SYS://INIT</span>
+            <span class="loader-label">CARGANDO MOTOR FÍSICO</span>
+            <div class="loader-bar"><div class="loader-fill" id="loader-fill"></div></div>
+            <span class="loader-pct" id="loader-progress">0%</span>
+          </div>
+        </div>
+
+        <!-- HUD Telemetry -->
+        <div class="hud-tl" aria-hidden="true">
+          <span class="hud-dot"></span>
+          NODO ACTIVO
+          <br>LAT 4.7471°N · LON 75.9122°W
+        </div>
+        <div class="hud-br" aria-hidden="true">
+          RENDER: WEBGL2
+          <br>ENGINE: THREE.JS r128
+        </div>
+
+        <!-- Corner brackets -->
+        <div class="corner corner--tl" aria-hidden="true"></div>
+        <div class="corner corner--tr" aria-hidden="true"></div>
+        <div class="corner corner--bl" aria-hidden="true"></div>
+        <div class="corner corner--br" aria-hidden="true"></div>
+      </div>
+
+      <!-- Hero copy overlay -->
+      <div class="hero-overlay">
+        <div class="hero-content">
+
+          <div class="hero-tag-row">
+            <span class="hero-tag">root@conectaTE:~#</span>
+            <span class="hero-tag hero-tag--blink">█</span>
+          </div>
+
+          <!-- Glass text container — fragmentation target -->
+          <div class="glass-title-wrap" id="glass-title-wrap">
+            <h1 class="glass-title" id="glass-title" data-text="conectaTE">
+              conectaTE
+            </h1>
+            <!-- Canvas overlay for shatter effect -->
+            <canvas id="shatter-canvas" aria-hidden="true"></canvas>
+          </div>
+
+          <p class="hero-subline">
+            <span class="subline-accent">Nodo de Pensamiento Computacional</span>
+            <br>
+            I.E. Sor María Juliana · Cartago, Valle del Cauca
+          </p>
+
+          <p class="hero-manifesto">
+            No somos un club. Somos la grieta en el sistema donde el cosmos 
+            se filtra. Donde el silicio aprende a pensar. Donde la educación 
+            deja de tener límites.
+          </p>
+
+          <div class="hero-cta">
+            <a href="#narrative" class="btn btn--primary">
+              <span class="btn-text">Explorar Misiones</span>
+              <svg class="btn-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="#join" class="btn btn--ghost">Solicitar Acceso</a>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="scroll-hint" aria-hidden="true">
+        <div class="sh-line"></div>
+        <span class="sh-text">SCROLL</span>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION 2: NARRATIVE HORIZONTAL SCROLL
+         400vh tall wrapper — sticky inner — translateX journey
+    ═══════════════════════════════════════════════════════ -->
+    <section id="narrative" class="narrative-section">
+
+      <div class="narrative-wrapper" id="narrative-wrapper">
+        <div class="narrative-sticky" id="narrative-sticky">
+
+          <!-- Progress bar at top -->
+          <div class="narrative-progress" aria-hidden="true">
+            <div class="np-fill" id="np-fill"></div>
+          </div>
+
+          <!-- The horizontal track that translates -->
+          <div class="narrative-track" id="narrative-track">
+
+            <!-- PANEL 0: Section intro -->
+            <div class="narrative-panel narrative-panel--intro">
+              <div class="panel-inner">
+                <p class="panel-sys-tag">SYS://MISSIONS.LOG</p>
+                <h2 class="panel-title">
+                  Tres líneas.<br>
+                  <span class="accent-stroke">Un propósito.</span>
+                </h2>
+                <p class="panel-body">
+                  Desde Cartago, Colombia, operamos tres frentes simultáneos 
+                  que convergen en un solo objetivo: demostrar que la ciencia 
+                  no tiene frontera geográfica.
+                </p>
+              </div>
+            </div>
+
+            <!-- PANEL 1: Division Betelgeuse -->
+            <div class="narrative-panel" data-panel="betelgeuse">
+              <div class="panel-accent-line"></div>
+              <div class="panel-inner">
+                <div class="panel-number">01</div>
+                <p class="panel-sys-tag">ASTRONOMÍA · ACTIVO</p>
+                <h2 class="panel-title panel-title--large">
+                  División<br>
+                  <span class="panel-highlight">Betelgeuse</span>
+                </h2>
+                <p class="panel-body">
+                  Nuestra línea de astronomía lleva el nombre de la supergigante 
+                  roja que algún día explotará y será visible de día. 
+                  Observamos, catalogamos y estudiamos el cosmos 
+                  con instrumentación real.
+                </p>
+                <div class="panel-stat-row">
+                  <div class="panel-stat">
+                    <span class="ps-val">643</span>
+                    <span class="ps-unit">ly</span>
+                    <span class="ps-label">Distancia a Betelgeuse</span>
+                  </div>
+                  <div class="panel-stat">
+                    <span class="ps-val">∞</span>
+                    <span class="ps-label">Objetivos pendientes</span>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-visual panel-visual--betelgeuse" aria-hidden="true">
+                <div class="star-cluster">
+                  <div class="star star--lg"></div>
+                  <div class="star star--md"></div>
+                  <div class="star star--sm"></div>
+                  <div class="star star--xs"></div>
+                  <div class="orbit-ring orbit-ring--1"></div>
+                  <div class="orbit-ring orbit-ring--2"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL 2: STEM+ Olympics -->
+            <div class="narrative-panel" data-panel="stem">
+              <div class="panel-accent-line"></div>
+              <div class="panel-inner">
+                <div class="panel-number">02</div>
+                <p class="panel-sys-tag">ROBÓTICA · ACTIVO</p>
+                <h2 class="panel-title panel-title--large">
+                  Olimpiadas<br>
+                  <span class="panel-highlight">STEM+</span>
+                </h2>
+                <p class="panel-body">
+                  Competimos. No para ganar trofeos, sino para demostrar 
+                  que el pensamiento computacional transforma comunidades. 
+                  Hemos avanzado a las Olimpiadas STEM+, donde el algoritmo 
+                  y el hardware son nuestras armas.
+                </p>
+                <div class="panel-tags">
+                  <span class="ptag">Robótica Autónoma</span>
+                  <span class="ptag">Pensamiento Algorítmico</span>
+                  <span class="ptag">Competencia Nacional</span>
+                </div>
+              </div>
+              <div class="panel-visual panel-visual--stem" aria-hidden="true">
+                <div class="circuit-visual">
+                  <svg viewBox="0 0 200 200" fill="none">
+                    <rect x="80" y="80" width="40" height="40" stroke="#00f3ff" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="100" y1="80" x2="100" y2="20" stroke="#00f3ff" stroke-width="1" opacity="0.4"/>
+                    <line x1="100" y1="120" x2="100" y2="180" stroke="#00f3ff" stroke-width="1" opacity="0.4"/>
+                    <line x1="80" y1="100" x2="20" y2="100" stroke="#00f3ff" stroke-width="1" opacity="0.4"/>
+                    <line x1="120" y1="100" x2="180" y2="100" stroke="#00f3ff" stroke-width="1" opacity="0.4"/>
+                    <circle cx="100" cy="20" r="4" fill="#00f3ff" opacity="0.8"/>
+                    <circle cx="100" cy="180" r="4" fill="#00f3ff" opacity="0.8"/>
+                    <circle cx="20" cy="100" r="4" fill="#00f3ff" opacity="0.8"/>
+                    <circle cx="180" cy="100" r="4" fill="#00f3ff" opacity="0.8"/>
+                    <circle cx="100" cy="100" r="6" fill="#00f3ff" opacity="0.3"/>
+                    <rect x="50" y="20" width="30" height="12" rx="2" stroke="#00f3ff" stroke-width="1" opacity="0.5"/>
+                    <rect x="120" y="168" width="30" height="12" rx="2" stroke="#00f3ff" stroke-width="1" opacity="0.5"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL 3: Encuentros Colaborativos -->
+            <div class="narrative-panel" data-panel="encuentros">
+              <div class="panel-accent-line"></div>
+              <div class="panel-inner">
+                <div class="panel-number">03</div>
+                <p class="panel-sys-tag">EDUCACIÓN · CONTINUO</p>
+                <h2 class="panel-title panel-title--large">
+                  Encuentros<br>
+                  <span class="panel-highlight">Colaborativos</span>
+                </h2>
+                <p class="panel-body">
+                  Cada semana, rompemos las fronteras del aula. 
+                  Los Encuentros Colaborativos son sesiones de co-creación 
+                  donde el conocimiento fluye horizontal, entre estudiantes, 
+                  sin jerarquías, con propósito.
+                </p>
+                <div class="panel-quote">
+                  <span class="pq-line"></span>
+                  <p class="pq-text">"La educación que no incomoda no transforma."</p>
+                </div>
+              </div>
+              <div class="panel-visual panel-visual--encuentros" aria-hidden="true">
+                <div class="network-visual">
+                  <div class="nv-node nv-node--center"></div>
+                  <div class="nv-node nv-node--1"></div>
+                  <div class="nv-node nv-node--2"></div>
+                  <div class="nv-node nv-node--3"></div>
+                  <div class="nv-node nv-node--4"></div>
+                  <div class="nv-node nv-node--5"></div>
+                  <svg class="nv-lines" viewBox="0 0 200 200" fill="none">
+                    <line x1="100" y1="100" x2="100" y2="30" stroke="#00f3ff" stroke-width="0.5" opacity="0.4"/>
+                    <line x1="100" y1="100" x2="160" y2="60" stroke="#00f3ff" stroke-width="0.5" opacity="0.4"/>
+                    <line x1="100" y1="100" x2="160" y2="140" stroke="#00f3ff" stroke-width="0.5" opacity="0.4"/>
+                    <line x1="100" y1="100" x2="40" y2="140" stroke="#00f3ff" stroke-width="0.5" opacity="0.4"/>
+                    <line x1="100" y1="100" x2="40" y2="60" stroke="#00f3ff" stroke-width="0.5" opacity="0.4"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL 4: Join CTA -->
+            <div class="narrative-panel narrative-panel--cta">
+              <div class="panel-inner">
+                <p class="panel-sys-tag">SYS://RECRUITMENT.OPEN</p>
+                <h2 class="panel-title">
+                  ¿Listo para<br>
+                  <span class="accent-stroke">conectaTE?</span>
+                </h2>
+                <p class="panel-body">
+                  El Nodo siempre busca nuevas mentes.
+                  No necesitas experiencia. Solo necesitas curiosidad.
+                </p>
+                <a href="#join" class="btn btn--primary btn--lg">
+                  <span class="btn-text">Solicitar Acceso al Nodo</span>
+                  <svg class="btn-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+          </div><!-- /narrative-track -->
+
+          <!-- Panel counter -->
+          <div class="panel-counter" aria-hidden="true">
+            <span id="panel-current">01</span>
+            <span class="pc-sep">/</span>
+            <span id="panel-total">04</span>
+          </div>
+
+        </div><!-- /narrative-sticky -->
+      </div><!-- /narrative-wrapper -->
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION 3: ABOUT / TECH STACK
+    ═══════════════════════════════════════════════════════ -->
+    <section id="about" class="about-section">
+      <div class="section-container">
+
+        <div class="about-header">
+          <p class="sys-tag">SYS://STACK.QUERY</p>
+          <h2 class="section-title">Con qué<br><span class="accent-stroke">operamos.</span></h2>
+          <p class="section-sub">Las herramientas son extensiones de la mente.</p>
+        </div>
+
+        <div class="stack-grid">
+
+          <div class="stack-item" data-delay="0">
+            <div class="si-top">
+              <span class="si-num">01</span>
+              <div class="si-icon">
+                <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                  <circle cx="20" cy="20" r="8" stroke="currentColor" stroke-width="1.2"/>
+                  <circle cx="20" cy="20" r="14" stroke="currentColor" stroke-width="0.6" stroke-dasharray="2 3"/>
+                  <line x1="20" y1="0" x2="20" y2="8" stroke="currentColor" stroke-width="1.2"/>
+                  <line x1="20" y1="32" x2="20" y2="40" stroke="currentColor" stroke-width="1.2"/>
+                  <line x1="0" y1="20" x2="8" y2="20" stroke="currentColor" stroke-width="1.2"/>
+                  <line x1="32" y1="20" x2="40" y2="20" stroke="currentColor" stroke-width="1.2"/>
+                </svg>
+              </div>
+            </div>
+            <h3 class="si-title">Astronomía Digital</h3>
+            <p class="si-desc">Observación y análisis con herramientas profesionales. Aladin Sky Atlas, archivos FITS y bases de datos del Minor Planet Center. La División Betelgeuse escudriña el cosmos.</p>
+          </div>
+
+          <div class="stack-item" data-delay="100">
+            <div class="si-top">
+              <span class="si-num">02</span>
+              <div class="si-icon">
+                <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                  <rect x="15" y="15" width="10" height="10" stroke="currentColor" stroke-width="1.2"/>
+                  <path d="M15 15L5 5M25 15L35 5M25 25L35 35M15 25L5 35" stroke="currentColor" stroke-width="0.8" opacity="0.6"/>
+                  <circle cx="5" cy="5" r="2" fill="currentColor" opacity="0.8"/>
+                  <circle cx="35" cy="5" r="2" fill="currentColor" opacity="0.8"/>
+                  <circle cx="5" cy="35" r="2" fill="currentColor" opacity="0.8"/>
+                  <circle cx="35" cy="35" r="2" fill="currentColor" opacity="0.8"/>
+                </svg>
+              </div>
+            </div>
+            <h3 class="si-title">Hardware & Robótica</h3>
+            <p class="si-desc">Arduino, ESP32, Raspberry Pi. Diseño de sistemas embebidos para competencia en Olimpiadas STEM+. Del circuito al algoritmo: hardware que piensa.</p>
+          </div>
+
+          <div class="stack-item" data-delay="200">
+            <div class="si-top">
+              <span class="si-num">03</span>
+              <div class="si-icon">
+                <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                  <polyline points="4,28 12,18 18,22 26,10 36,20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="18" r="2" fill="currentColor"/>
+                  <circle cx="18" cy="22" r="2" fill="currentColor"/>
+                  <circle cx="26" cy="10" r="2" fill="currentColor"/>
+                </svg>
+              </div>
+            </div>
+            <h3 class="si-title">Datos & Código</h3>
+            <p class="si-desc">Python como idioma de análisis. Modelos de datos, automatización y pensamiento algorítmico aplicado a problemas reales del entorno educativo colombiano.</p>
+          </div>
+
+          <div class="stack-item" data-delay="300">
+            <div class="si-top">
+              <span class="si-num">04</span>
+              <div class="si-icon">
+                <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                  <circle cx="20" cy="10" r="5" stroke="currentColor" stroke-width="1.2"/>
+                  <circle cx="8"  cy="30" r="4" stroke="currentColor" stroke-width="1.2"/>
+                  <circle cx="32" cy="30" r="4" stroke="currentColor" stroke-width="1.2"/>
+                  <line x1="20" y1="15" x2="8"  y2="26" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
+                  <line x1="20" y1="15" x2="32" y2="26" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
+                  <line x1="8"  y1="30" x2="32" y2="30" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
+                </svg>
+              </div>
+            </div>
+            <h3 class="si-title">Colaboración Activa</h3>
+            <p class="si-desc">Encuentros semanales de co-creación. Aprendizaje horizontal, sin jerarquías de poder, construyendo redes de conocimiento dentro y fuera del aula.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION 4: JOIN — Terminal Form
+    ═══════════════════════════════════════════════════════ -->
+    <section id="join" class="join-section">
+      <div class="section-container">
+        <div class="join-grid">
+
+          <!-- Left manifesto -->
+          <div class="join-manifesto">
+            <p class="sys-tag">SYS://ACESSO.ABIERTO</p>
+            <h2 class="section-title">El Nodo<br>te espera.</h2>
+            <p class="join-desc">
+              Buscamos mentes que se pregunten el porqué de las cosas. 
+              No importa tu grado, tu historial ni tus calificaciones. 
+              Si sientes que la educación tradicional te queda pequeña, 
+              este es tu lugar.
+            </p>
+            <ul class="join-perks">
+              <li>
+                <span class="jp-dot" aria-hidden="true"></span>
+                Astronomía real con la División Betelgeuse
+              </li>
+              <li>
+                <span class="jp-dot" aria-hidden="true"></span>
+                Competencias STEM+ a nivel nacional
+              </li>
+              <li>
+                <span class="jp-dot" aria-hidden="true"></span>
+                Encuentros colaborativos semanales
+              </li>
+              <li>
+                <span class="jp-dot" aria-hidden="true"></span>
+                Pensamiento computacional aplicado al mundo real
+              </li>
+            </ul>
+          </div>
+
+          <!-- Terminal Form -->
+          <div class="join-terminal">
+            <div class="terminal-bar">
+              <div class="terminal-dots" aria-hidden="true">
+                <span class="td td--r"></span>
+                <span class="td td--y"></span>
+                <span class="td td--g"></span>
+              </div>
+              <span class="terminal-title">PILOT_REGISTRATION · v2.0 · NODO_CONECTATE</span>
+            </div>
+
+            <form class="terminal-form" id="join-form" novalidate>
+              <div class="tf-field">
+                <label class="tf-label" for="f-name">
+                  <span class="tf-prompt">$</span> identificacion
+                </label>
+                <input class="tf-input" type="text" id="f-name" name="name"
+                       placeholder="Tu nombre completo" autocomplete="name" required />
+              </div>
+
+              <div class="tf-field">
+                <label class="tf-label" for="f-grade">
+                  <span class="tf-prompt">$</span> nivel_academico
+                </label>
+                <select class="tf-input tf-select" id="f-grade" name="grade" required>
+                  <option value="" disabled selected>Selecciona tu grado</option>
+                  <option value="6">6° — Primer Ciclo</option>
+                  <option value="7">7° — Primer Ciclo</option>
+                  <option value="8">8° — Segundo Ciclo</option>
+                  <option value="9">9° — Segundo Ciclo</option>
+                  <option value="10">10° — Media Técnica</option>
+                  <option value="11">11° — Media Técnica</option>
+                </select>
+              </div>
+
+              <div class="tf-field">
+                <label class="tf-label" for="f-node">
+                  <span class="tf-prompt">$</span> nodo_primario
+                </label>
+                <select class="tf-input tf-select" id="f-node" name="node" required>
+                  <option value="" disabled selected>Selecciona tu nodo</option>
+                  <option value="betelgeuse">División Betelgeuse — Astronomía</option>
+                  <option value="stem">STEM+ — Robótica y Competencia</option>
+                  <option value="colaborativo">Encuentros Colaborativos</option>
+                  <option value="datos">Datos & Programación</option>
+                </select>
+              </div>
+
+              <button class="tf-submit" type="submit" id="join-submit">
+                <span class="tfs-text">CONECTAR AL NODO</span>
+                <svg class="tfs-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </form>
+
+            <!-- Success state -->
+            <div class="terminal-success" id="terminal-success" hidden aria-live="assertive">
+              <div class="ts-lines">
+                <div class="ts-line">// CONEXIÓN ESTABLECIDA</div>
+                <div class="ts-line">// ACCESO AL NODO CONFIRMADO</div>
+                <div class="ts-pilot" id="ts-pilot-name"></div>
+                <div class="ts-line">// BIENVENIDO/A A conectaTE.</div>
+                <div class="ts-line ts-line--dim">// EL PENSAMIENTO COMPUTACIONAL COMIENZA AQUÍ.</div>
+              </div>
+              <button class="btn btn--ghost ts-reset" id="ts-reset">Nueva solicitud</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logos">
+        <img src="assets/logo_institucion.jpg" alt="I.E. Sor María Juliana" class="footer-logo" />
+        <div class="footer-sep" aria-hidden="true"></div>
+        <img src="assets/logo_semillero.jpg" alt="Semillero conectaTE" class="footer-logo footer-logo--accent" />
+      </div>
+      <div class="footer-info">
+        <p class="footer-brand">conectaTE</p>
+        <p class="footer-sub">Nodo de Pensamiento Computacional<br>I.E. Sor María Juliana · Cartago, Valle del Cauca</p>
+        <p class="footer-coord">4.7471° N, 75.9122° W · ALT 917m ASL</p>
+      </div>
+      <p class="footer-copy">© 2026 Semillero conectaTE. Construido desde Cartago para el cosmos.</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
